@@ -4,18 +4,20 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using Verse;
+using Mlie;
 
 namespace DressForTheWeather;
 
 public class DressForTheWeatherMod : Mod
 {
     private static List<SpecialThingFilterDef> specialThingFilterDefs;
+    private static string currentVersion;
 
     private static List<SpecialThingFilterDef> SpecialThingFilterDefs
     {
         get
         {
-            if (specialThingFilterDefs is not null)
+            if(specialThingFilterDefs is not null)
             {
                 return specialThingFilterDefs;
             }
@@ -42,7 +44,7 @@ public class DressForTheWeatherMod : Mod
     {
         get
         {
-            if (apparelGlobalFilter is not null)
+            if(apparelGlobalFilter is not null)
             {
                 return apparelGlobalFilter;
             }
@@ -61,11 +63,12 @@ public class DressForTheWeatherMod : Mod
     private static DressForTheWeatherSettings Settings => settings ??=
         LoadedModManager.GetMod<DressForTheWeatherMod>().GetSettings<DressForTheWeatherSettings>();
 
-    private readonly ThingFilterUI.UIState apparelThingFilterState = new();
+    private ThingFilterUI.UIState apparelThingFilterState = new();
 
     public DressForTheWeatherMod(ModContentPack content) : base(content)
-    {
+    { 
         new Harmony("DanielWedemeyer.DressForTheWeather").PatchAll(Assembly.GetExecutingAssembly());
+        currentVersion = VersionFromManifest.GetVersionFromModMetaData(content.ModMetaData);
     }
 
     public override void DoSettingsWindowContents(Rect inRect)
@@ -76,13 +79,28 @@ public class DressForTheWeatherMod : Mod
 
         Rect rect4 = new(0.0f, inRect.y + 40f, inRect.width / 2, inRect.height - 40f);
 
-        if(Current.Game == null)
+        if (currentVersion != null)
+        {
+            GUI.contentColor = Color.gray;
+            Widgets.Label(new Rect(0, rect4.yMax - 30f, 300f, 30f), "DressForTheWeather_CurrentModVersion".Translate(currentVersion));
+            GUI.contentColor = Color.white;
+        }
+
+        if (Current.Game == null)
         {
             Widgets.Label(rect4, "DressForTheWeather_SettingsAvailableInGame".Translate());
             return;
         }
 
+        if(Widgets.ButtonText(
+            new Rect(rect4.xMax - 120f, rect4.yMax - 330f, 100f, 30f),
+            "DressForTheWeather_ResetSettings".Translate()))
+        {
+            ResetSettings();
+        }
+
         Widgets.BeginGroup(rect4);
+
         Widgets.Label(new Rect(0.0f, 0.0f, rect4.width, 24f), "DressForTheWeather_ApparelFilter".Translate());
 
         ThingFilterUI.DoThingFilterConfigWindow(
@@ -111,6 +129,14 @@ public class DressForTheWeatherMod : Mod
         Widgets.EndGroup();
 
         base.DoSettingsWindowContents(inRect);
+    }
+
+    private void ResetSettings()
+    {
+        Settings.ApparelFilter = null;
+        _ = Settings.ApparelFilter;
+        Settings.ReplaceableFilter = null;
+        _ = Settings.ReplaceableFilter;
     }
 
     public override string SettingsCategory() { return "Dress For The Weather"; }

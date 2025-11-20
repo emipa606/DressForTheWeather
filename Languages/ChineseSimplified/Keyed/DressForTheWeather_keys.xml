@@ -5,4 +5,6 @@
   <DressForTheWeather_ApparelFilter>棋子可以穿上抗温度的衣服：</DressForTheWeather_ApparelFilter>
   <DressForTheWeather_ReplaceableFilter>可替换的服饰：</DressForTheWeather_ReplaceableFilter>
   <DressForTheWeather_SettingsAvailableInGame>加载游戏时可使用服装的特定设置</DressForTheWeather_SettingsAvailableInGame>
+  <DressForTheWeather_ResetSettings>重置</DressForTheWeather_ResetSettings>
+  <DressForTheWeather_CurrentModVersion>已安装 MOD 版本：{0}</DressForTheWeather_CurrentModVersion>
 </LanguageData>

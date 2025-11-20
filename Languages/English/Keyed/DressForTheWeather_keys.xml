@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
+  <DressForTheWeather_ResetSettings>Reset</DressForTheWeather_ResetSettings>
+  <DressForTheWeather_CurrentModVersion>Installed mod-version: {0}</DressForTheWeather_CurrentModVersion>
   <DressForTheWeather_Raiders>Raiders wear weather-appropriate clothes</DressForTheWeather_Raiders>
   <DressForTheWeather_ApparelFilter>Pawns can wear for temperature resistance:</DressForTheWeather_ApparelFilter>
   <DressForTheWeather_ReplaceableFilter>Apparel that may be replaced:</DressForTheWeather_ReplaceableFilter>

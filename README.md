@@ -1,4 +1,4 @@
-# [Dress for the Weather (Continued)]()
+# [Dress for the Weather (Continued)](https://steamcommunity.com/sharedfiles/filedetails/?id=3607724833)
 
 ![Image](https://img.litet.net/logos/Info.png)
 
@@ -55,4 +55,6 @@ A: Please post the full error log in the comments. I will fix it as quickly as p
 -  If you have the solution for a problem, please post it to the GitHub repository.
 -  Use [RimSort](https://github.com/RimSort/RimSort/releases/latest) to sort your mods
 
+ 
 
+[![Image](https://img.shields.io/github/v/release/emipa606/DressForTheWeather?label=latest%20version&style=plastic&color=9f1111&labelColor=black)](https://steamcommunity.com/sharedfiles/filedetails/changelog/3607724833) | tags:  guests

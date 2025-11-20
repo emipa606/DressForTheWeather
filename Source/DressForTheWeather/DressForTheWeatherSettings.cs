@@ -27,7 +27,7 @@ public class DressForTheWeatherSettings : ModSettings
             apparelFilter.SetAllow(DefDatabase<ThingCategoryDef>.GetNamed("ApparelUtility"), false);
             return apparelFilter;
         }
-        private set { apparelFilter = value; }
+        set { apparelFilter = value; }
     }
 
     public ThingFilter ReplaceableFilter
@@ -53,7 +53,7 @@ public class DressForTheWeatherSettings : ModSettings
             replaceableFilter.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_GasMask"), false);
             return replaceableFilter;
         }
-        private set { replaceableFilter = value; }
+        set { replaceableFilter = value; }
     }
 
     public override void ExposeData()

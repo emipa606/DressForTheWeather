@@ -5,4 +5,6 @@
   <DressForTheWeather_ApparelFilter>Les pions peuvent porter des vêtements pour résister à la température :</DressForTheWeather_ApparelFilter>
   <DressForTheWeather_ReplaceableFilter>Vêtements pouvant être remplacés :</DressForTheWeather_ReplaceableFilter>
   <DressForTheWeather_SettingsAvailableInGame>Les paramètres spécifiques à l'habillement sont disponibles lorsqu'un jeu est chargé</DressForTheWeather_SettingsAvailableInGame>
+  <DressForTheWeather_ResetSettings>Remise à zéro</DressForTheWeather_ResetSettings>
+  <DressForTheWeather_CurrentModVersion>Version installée du mod : {0}</DressForTheWeather_CurrentModVersion>
 </LanguageData>

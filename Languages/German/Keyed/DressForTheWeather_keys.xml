@@ -5,4 +5,6 @@
   <DressForTheWeather_ApparelFilter>Bauern können für Temperaturbeständigkeit tragen:</DressForTheWeather_ApparelFilter>
   <DressForTheWeather_ReplaceableFilter>Kleidungsstücke, die ersetzt werden können:</DressForTheWeather_ReplaceableFilter>
   <DressForTheWeather_SettingsAvailableInGame>Kleidungsspezifische Einstellungen sind verfügbar, wenn ein Spiel geladen wird</DressForTheWeather_SettingsAvailableInGame>
+  <DressForTheWeather_ResetSettings>Zurücksetzen</DressForTheWeather_ResetSettings>
+  <DressForTheWeather_CurrentModVersion>Installierte Mod-Version: {0}</DressForTheWeather_CurrentModVersion>
 </LanguageData>

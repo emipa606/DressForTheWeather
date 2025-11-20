@@ -1,5 +1,9 @@
 # Changelog for DressForTheWeather
 
+1.6.1 - Added settings reset button
+Used DeepL to update translations for ChineseSimplified, French, German
+
+
 1.6.0 - First publish
 Used DeepL to update translations for ChineseSimplified, French, German
 

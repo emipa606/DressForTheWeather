@@ -2,13 +2,15 @@
   "Continued": true,
   "CanAdd": "0",
   "CanRemove": "0",
-  "LastXmlCleaning": "2025-11-17T22:39:01.8663917+01:00",
+  "LastXmlCleaning": "2025-11-20T22:01:39.8595659+01:00",
   "SocialImageSet": true,
   "Patches": false,
   "Defs": false,
   "Assemblies": true,
-  "LinesOfCode": 18546,
+  "LinesOfCode": 19391,
   "LinesOfXML": 0,
   "SearchTags": " guests",
-  "PreviewVersion": "1.6"
+  "PreviewVersion": "1.6",
+  "RimWorldBaseId": 23181,
+  "CodeBaseSize": 67
 }
