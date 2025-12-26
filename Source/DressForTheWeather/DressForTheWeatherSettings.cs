@@ -6,9 +6,8 @@ namespace DressForTheWeather;
 [StaticConstructorOnStartup]
 public class DressForTheWeatherSettings : ModSettings
 {
-    public bool RaidersComePrepared;
     private ThingFilter apparelFilter;
-    private ThingFilter replaceableFilter;
+    public bool RaidersComePrepared;
 
 
     public ThingFilter ApparelFilter
@@ -27,43 +26,43 @@ public class DressForTheWeatherSettings : ModSettings
             apparelFilter.SetAllow(DefDatabase<ThingCategoryDef>.GetNamed("ApparelUtility"), false);
             return apparelFilter;
         }
-        set { apparelFilter = value; }
+        set => apparelFilter = value;
     }
 
     public ThingFilter ReplaceableFilter
     {
         get
         {
-            if (replaceableFilter is not null)
+            if (field is not null)
             {
-                return replaceableFilter;
+                return field;
             }
 
-            replaceableFilter = new ThingFilter();
-            replaceableFilter.SetAllow(ThingCategoryDefOf.Apparel, true);
+            field = new ThingFilter();
+            field.SetAllow(ThingCategoryDefOf.Apparel, true);
             apparelFilter.SetAllow(DefDatabase<ThingCategoryDef>.GetNamed("ApparelUtility"), false);
-            replaceableFilter.SetAllow(ThingCategoryDefOf.ApparelArmor, false);
-            replaceableFilter.SetAllow(ThingCategoryDefOf.ArmorHeadgear, false);
-            replaceableFilter.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_AdvancedHelmet"), true);
-            replaceableFilter.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_SimpleHelmet"), true);
-            replaceableFilter.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_FlakVest"), true);
-            replaceableFilter.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_FlakPants"), true);
-            replaceableFilter.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_FlakJacket"), true);
+            field.SetAllow(ThingCategoryDefOf.ApparelArmor, false);
+            field.SetAllow(ThingCategoryDefOf.ArmorHeadgear, false);
+            field.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_AdvancedHelmet"), true);
+            field.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_SimpleHelmet"), true);
+            field.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_FlakVest"), true);
+            field.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_FlakPants"), true);
+            field.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_FlakJacket"), true);
             //gas mask
-            replaceableFilter.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_GasMask"), false);
-            return replaceableFilter;
+            field.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_GasMask"), false);
+            return field;
         }
-        set { replaceableFilter = value; }
+        set;
     }
 
     public override void ExposeData()
     {
-        Scribe_Values.Look(ref RaidersComePrepared, nameof(RaidersComePrepared), false);
-        ThingFilter filter = ApparelFilter;
+        Scribe_Values.Look(ref RaidersComePrepared, nameof(RaidersComePrepared));
+        var filter = ApparelFilter;
         Scribe_Deep.Look(ref filter, nameof(ApparelFilter));
         ApparelFilter = filter;
 
-        ThingFilter filter2 = ReplaceableFilter;
+        var filter2 = ReplaceableFilter;
         Scribe_Deep.Look(ref filter2, nameof(ReplaceableFilter));
         ReplaceableFilter = filter2;
 

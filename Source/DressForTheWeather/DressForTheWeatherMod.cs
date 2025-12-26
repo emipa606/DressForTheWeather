@@ -1,29 +1,38 @@
-﻿using HarmonyLib;
-using RimWorld;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
+using HarmonyLib;
+using Mlie;
+using RimWorld;
 using UnityEngine;
 using Verse;
-using Mlie;
 
 namespace DressForTheWeather;
 
 public class DressForTheWeatherMod : Mod
 {
-    private static List<SpecialThingFilterDef> specialThingFilterDefs;
     private static string currentVersion;
+
+    private static DressForTheWeatherSettings settings;
+
+    private readonly ThingFilterUI.UIState apparelThingFilterState = new();
+
+    public DressForTheWeatherMod(ModContentPack content) : base(content)
+    {
+        new Harmony("DanielWedemeyer.DressForTheWeather").PatchAll(Assembly.GetExecutingAssembly());
+        currentVersion = VersionFromManifest.GetVersionFromModMetaData(content.ModMetaData);
+    }
 
     private static List<SpecialThingFilterDef> SpecialThingFilterDefs
     {
         get
         {
-            if(specialThingFilterDefs is not null)
+            if (field is not null)
             {
-                return specialThingFilterDefs;
+                return field;
             }
 
-            specialThingFilterDefs = new List<SpecialThingFilterDef>
-            {
+            field =
+            [
                 SpecialThingFilterDefOf.AllowDeadmansApparel,
                 SpecialThingFilterDefOf.AllowNonDeadmansApparel,
                 SpecialThingFilterDefOf.AllowFresh,
@@ -33,43 +42,31 @@ public class DressForTheWeatherMod : Mod
                 SpecialThingFilterDef.Named("AllowNonBurnableApparel"),
                 SpecialThingFilterDef.Named("AllowBiocodedApparel"),
                 SpecialThingFilterDef.Named("AllowNonBiocodedApparel")
-            };
-            return specialThingFilterDefs;
+            ];
+            return field;
         }
     }
-
-    private static ThingFilter apparelGlobalFilter;
 
     private static ThingFilter ApparelGlobalFilter
     {
         get
         {
-            if(apparelGlobalFilter is not null)
+            if (field is not null)
             {
-                return apparelGlobalFilter;
+                return field;
             }
 
-            apparelGlobalFilter = new ThingFilter();
-            apparelGlobalFilter.SetAllow(ThingCategoryDefOf.Apparel, true);
-            apparelGlobalFilter.allowedHitPointsConfigurable = false;
-            apparelGlobalFilter.allowedQualitiesConfigurable = false;
-            apparelGlobalFilter.DisplayRootCategory = new TreeNode_ThingCategory(ThingCategoryDefOf.Apparel);
-            return apparelGlobalFilter;
+            field = new ThingFilter();
+            field.SetAllow(ThingCategoryDefOf.Apparel, true);
+            field.allowedHitPointsConfigurable = false;
+            field.allowedQualitiesConfigurable = false;
+            field.DisplayRootCategory = new TreeNode_ThingCategory(ThingCategoryDefOf.Apparel);
+            return field;
         }
     }
 
-    private static DressForTheWeatherSettings settings;
-
     private static DressForTheWeatherSettings Settings => settings ??=
         LoadedModManager.GetMod<DressForTheWeatherMod>().GetSettings<DressForTheWeatherSettings>();
-
-    private ThingFilterUI.UIState apparelThingFilterState = new();
-
-    public DressForTheWeatherMod(ModContentPack content) : base(content)
-    { 
-        new Harmony("DanielWedemeyer.DressForTheWeather").PatchAll(Assembly.GetExecutingAssembly());
-        currentVersion = VersionFromManifest.GetVersionFromModMetaData(content.ModMetaData);
-    }
 
     public override void DoSettingsWindowContents(Rect inRect)
     {
@@ -82,7 +79,8 @@ public class DressForTheWeatherMod : Mod
         if (currentVersion != null)
         {
             GUI.contentColor = Color.gray;
-            Widgets.Label(new Rect(0, rect4.yMax - 30f, 300f, 30f), "DressForTheWeather_CurrentModVersion".Translate(currentVersion));
+            Widgets.Label(new Rect(0, rect4.yMax - 30f, 300f, 30f),
+                "DressForTheWeather_CurrentModVersion".Translate(currentVersion));
             GUI.contentColor = Color.white;
         }
 
@@ -92,9 +90,9 @@ public class DressForTheWeatherMod : Mod
             return;
         }
 
-        if(Widgets.ButtonText(
-            new Rect(rect4.xMax - 120f, rect4.yMax - 330f, 100f, 30f),
-            "DressForTheWeather_ResetSettings".Translate()))
+        if (Widgets.ButtonText(
+                new Rect(rect4.xMax - 120f, rect4.yMax - 330f, 100f, 30f),
+                "DressForTheWeather_ResetSettings".Translate()))
         {
             ResetSettings();
         }
@@ -111,7 +109,7 @@ public class DressForTheWeatherMod : Mod
             16,
             forceHideHitPointsConfig: true,
             forceHiddenFilters:
-                SpecialThingFilterDefs);
+            SpecialThingFilterDefs);
         Widgets.EndGroup();
 
         Rect rect5 = new(inRect.width / 2, inRect.y + 40f, inRect.width / 2, inRect.height - 40f);
@@ -139,5 +137,8 @@ public class DressForTheWeatherMod : Mod
         _ = Settings.ReplaceableFilter;
     }
 
-    public override string SettingsCategory() { return "Dress For The Weather"; }
+    public override string SettingsCategory()
+    {
+        return "Dress For The Weather";
+    }
 }

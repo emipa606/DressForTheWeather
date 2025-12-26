@@ -1,7 +1,6 @@
-﻿using HarmonyLib;
-using RimWorld;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using RimWorld;
 using Verse;
 
 namespace DressForTheWeather;
@@ -14,8 +13,14 @@ public static class PawnsArriveUtilities
 
     private static DressForTheWeatherSettings settings;
 
+    private static readonly WeatherDef poisonForestDef =
+        DefDatabase<WeatherDef>.GetNamedSilentFail("PoisonForestSpores");
 
-    private static bool ApparelRequirementCanUseStuff(SpecificApparelRequirement req, ThingStuffPair pair)
+    public static DressForTheWeatherSettings Settings => settings ??=
+        LoadedModManager.GetMod<DressForTheWeatherMod>().GetSettings<DressForTheWeatherSettings>();
+
+
+    private static bool apparelRequirementCanUseStuff(SpecificApparelRequirement req, ThingStuffPair pair)
     {
         if (req.Stuff == null || !PawnApparelGenerator.ApparelRequirementHandlesThing(req, pair.thing))
         {
@@ -26,24 +31,29 @@ public static class PawnsArriveUtilities
     }
 
 
-    private static bool CanUseStuff(Pawn pawn, ThingStuffPair pair)
+    private static bool canUseStuff(Pawn pawn, ThingStuffPair pair)
     {
-        List<SpecificApparelRequirement> apparelRequirements = pawn.kindDef.specificApparelRequirements;
-        if (apparelRequirements != null)
+        var apparelRequirements = pawn.kindDef.specificApparelRequirements;
+        if (apparelRequirements == null)
         {
-            for (int index = 0; index < apparelRequirements.Count; ++index)
+            return pair.stuff == null ||
+                   pawn.Faction == null ||
+                   pawn.kindDef.ignoreFactionApparelStuffRequirements ||
+                   pawn.Faction.def.CanUseStuffForApparel(pair.stuff);
+        }
+
+        foreach (var apparelRequirement in apparelRequirements)
+        {
+            if (!apparelRequirementCanUseStuff(apparelRequirement, pair))
             {
-                if (!ApparelRequirementCanUseStuff(apparelRequirements[index], pair))
-                {
-                    return false;
-                }
+                return false;
             }
         }
 
         return pair.stuff == null ||
-            pawn.Faction == null ||
-            pawn.kindDef.ignoreFactionApparelStuffRequirements ||
-            pawn.Faction.def.CanUseStuffForApparel(pair.stuff);
+               pawn.Faction == null ||
+               pawn.kindDef.ignoreFactionApparelStuffRequirements ||
+               pawn.Faction.def.CanUseStuffForApparel(pair.stuff);
     }
 
 
@@ -54,12 +64,13 @@ public static class PawnsArriveUtilities
             return;
         }
 
-        bool isWearingGasMask = false;
+        var isWearingGasMask = false;
         ThingDef gasMaskDef = null;
-        //if pawn is not wearing a gas mask and should have one and biotech is enabled
+        //if pawn is not wearing a gas mask and should have one and biotech or advanced biomes are enabled
         if (ModLister.BiotechInstalled &&
             (map.pollutionGrid.TotalPollutionPercent > 0.5 ||
-                map.GameConditionManager.ConditionIsActive(GameConditionDefOf.ToxicFallout)))
+             map.GameConditionManager.ConditionIsActive(GameConditionDefOf.ToxicFallout)) ||
+            poisonForestDef != null && map.weatherManager.curWeather == poisonForestDef)
         {
             Apparel gasMask;
             if (pawn.Faction?.def?.techLevel >= TechLevel.Industrial)
@@ -72,9 +83,10 @@ public static class PawnsArriveUtilities
             else
             {
                 gasMaskDef = DefDatabase<ThingDef>.GetNamed("Apparel_WarVeil");
-                ThingStuffPair tsp = allApparelPairs!.Where(p => p.thing == gasMaskDef).RandomElementByWeight(p => p.Commonality);
+                var tsp = allApparelPairs!.Where(p => p.thing == gasMaskDef).RandomElementByWeight(p => p.Commonality);
                 gasMask = (Apparel)ThingMaker.MakeThing(tsp.thing, tsp.stuff);
             }
+
             //initialize apparel
             gasMask.InitializeComps();
             //add apparel to pawn
@@ -83,16 +95,17 @@ public static class PawnsArriveUtilities
             isWearingGasMask = true;
         }
 
-        bool isWearingVacSuit = false;
+        var isWearingVacSuit = false;
         //if pawn is not wearing a vacsuit and should have one and oddysey is enabled
         if (ModLister.OdysseyInstalled && map.Biome.inVacuum && pawn.Faction?.def?.techLevel >= TechLevel.Spacer)
         {
             //create new vacsuit and helmet
             var vacSuitDef = ThingDefOf.Apparel_Vacsuit;
-            if(pawn.DevelopmentalStage == DevelopmentalStage.Baby || pawn.DevelopmentalStage == DevelopmentalStage.Child)
+            if (pawn.DevelopmentalStage is DevelopmentalStage.Baby or DevelopmentalStage.Child)
             {
                 vacSuitDef = DefDatabase<ThingDef>.GetNamed("Apparel_VacsuitChildren");
             }
+
             var vacSuit = (Apparel)ThingMaker.MakeThing(vacSuitDef);
             var vacSuitHelmet = (Apparel)ThingMaker.MakeThing(ThingDefOf.Apparel_VacsuitHelmet);
 
@@ -109,40 +122,42 @@ public static class PawnsArriveUtilities
         }
 
         //get minimum comfortable temperature for pawn
-        float minTemp = pawn.GetStatValue(StatDefOf.ComfyTemperatureMin);
+        var minTemp = pawn.GetStatValue(StatDefOf.ComfyTemperatureMin);
         //get maximum comfortable temperature for pawn
-        float maxTemp = pawn.GetStatValue(StatDefOf.ComfyTemperatureMax);
+        var maxTemp = pawn.GetStatValue(StatDefOf.ComfyTemperatureMax);
         //get current temperature
-        float currentTemp = map.mapTemperature.OutdoorTemp;
-        int tries = 0;
+        var currentTemp = map.mapTemperature.OutdoorTemp;
+        var tries = 0;
 
         while (currentTemp < minTemp && tries < maxTries)
         {
             tries++;
             //generate random apparel
-            Apparel apparel = GetNewApparel(pawn);
+            var apparel = getNewApparel(pawn);
             if (apparel is null)
             {
                 continue;
             }
 
             //get cold insulation
-            float coldInsulation = apparel.GetStatValue(StatDefOf.Insulation_Cold);
+            var coldInsulation = apparel.GetStatValue(StatDefOf.Insulation_Cold);
             //compare to currently worn apparel in same slot
-            List<Apparel> replacedApparel = GetApparelReplacedBy(pawn, apparel).ToList();
+            var replacedApparel = getApparelReplacedBy(pawn, apparel).ToList();
 
-            if(replacedApparel.Any(a => !Settings.ReplaceableFilter.Allows(a)))
+            if (replacedApparel.Any(a => !Settings.ReplaceableFilter.Allows(a)))
             {
                 continue;
             }
 
-            if(isWearingGasMask && replacedApparel.Any(apparel => apparel.def == gasMaskDef))
+            if (isWearingGasMask && replacedApparel.Any(found => found.def == gasMaskDef))
             {
                 continue;
             }
 
 
-            if (isWearingVacSuit && replacedApparel.Any(apparel => apparel.def == ThingDefOf.Apparel_Vacsuit || apparel.def == ThingDefOf.Apparel_VacsuitHelmet || apparel.def == DefDatabase<ThingDef>.GetNamed("Apparel_VacsuitChildren")))
+            if (isWearingVacSuit && replacedApparel.Any(found =>
+                    found.def == ThingDefOf.Apparel_Vacsuit || found.def == ThingDefOf.Apparel_VacsuitHelmet ||
+                    found.def == DefDatabase<ThingDef>.GetNamed("Apparel_VacsuitChildren")))
             {
                 continue;
             }
@@ -160,29 +175,31 @@ public static class PawnsArriveUtilities
         {
             tries++;
             //generate random apparels
-            Apparel apparel = GetNewApparel(pawn);
+            var apparel = getNewApparel(pawn);
             if (apparel is null)
             {
                 continue;
             }
+
             //get heat insulation
-            float heatInsulation = apparel.GetStatValue(StatDefOf.Insulation_Heat);
+            var heatInsulation = apparel.GetStatValue(StatDefOf.Insulation_Heat);
             //compare to currently worn apparel in same slot
 
-            List<Apparel> replacedApparel = GetApparelReplacedBy(pawn, apparel).ToList();
+            var replacedApparel = getApparelReplacedBy(pawn, apparel).ToList();
 
             if (replacedApparel.Any(a => !Settings.ReplaceableFilter.Allows(a)))
             {
                 continue;
             }
 
-            if (isWearingGasMask && replacedApparel.Any(apparel => apparel.def == gasMaskDef))
+            if (isWearingGasMask && replacedApparel.Any(found => found.def == gasMaskDef))
             {
                 continue;
             }
 
 
-            if (isWearingVacSuit && replacedApparel.Any(apparel => apparel.def == ThingDefOf.Apparel_Vacsuit || apparel.def == ThingDefOf.Apparel_VacsuitHelmet))
+            if (isWearingVacSuit && replacedApparel.Any(found =>
+                    found.def == ThingDefOf.Apparel_Vacsuit || found.def == ThingDefOf.Apparel_VacsuitHelmet))
             {
                 continue;
             }
@@ -199,24 +216,23 @@ public static class PawnsArriveUtilities
         }
     }
 
-    private static IEnumerable<Apparel> GetApparelReplacedBy(Pawn pawn, Apparel apparel)
+    private static IEnumerable<Apparel> getApparelReplacedBy(Pawn pawn, Apparel apparel)
     {
         return pawn.apparel.WornApparel
-            .Where(
-                x => x.def.apparel.bodyPartGroups.Intersect(apparel.def.apparel.bodyPartGroups).Any() &&
-                    x.def.apparel.layers.Intersect(apparel.def.apparel.layers).Any());
+            .Where(x => x.def.apparel.bodyPartGroups.Intersect(apparel.def.apparel.bodyPartGroups).Any() &&
+                        x.def.apparel.layers.Intersect(apparel.def.apparel.layers).Any());
     }
 
-    private static Apparel GetNewApparel(Pawn pawn)
+    private static Apparel getNewApparel(Pawn pawn)
     {
         while (true)
         {
             //get pawn faction tech level
-            TechLevel techLevel = pawn.Faction?.def.techLevel ?? TechLevel.Archotech;
+            var techLevel = pawn.Faction?.def.techLevel ?? TechLevel.Archotech;
             //Log tech level
 
-            if (!allApparelPairs!.Where(p => p.thing.techLevel <= techLevel && CanUseStuff(pawn, p))
-                .TryRandomElementByWeight(p => p.Commonality, out ThingStuffPair pair))
+            if (!allApparelPairs!.Where(p => p.thing.techLevel <= techLevel && canUseStuff(pawn, p))
+                    .TryRandomElementByWeight(p => p.Commonality, out var pair))
             {
                 return null;
             }
@@ -227,7 +243,7 @@ public static class PawnsArriveUtilities
             }
 
             //Create new apparel
-            Apparel apparel = (Apparel)ThingMaker.MakeThing(pair.thing, pair.stuff);
+            var apparel = (Apparel)ThingMaker.MakeThing(pair.thing, pair.stuff);
             if (!apparel.PawnCanWear(pawn))
             {
                 continue;
@@ -242,14 +258,10 @@ public static class PawnsArriveUtilities
     public static void InitializeApparelPairs()
     {
         allApparelPairs =
-                ThingStuffPair.AllWith(
-            td => td.IsApparel &&
-                !td.apparel.layers.Contains(ApparelLayerDefOf.Belt) &&
-                !td.apparel.mechanitorApparel &&
-                td.apparel.canBeGeneratedToSatisfyWarmth &&
-                Settings.ApparelFilter.Allows(td));
+            ThingStuffPair.AllWith(td => td.IsApparel &&
+                                         !td.apparel.layers.Contains(ApparelLayerDefOf.Belt) &&
+                                         !td.apparel.mechanitorApparel &&
+                                         td.apparel.canBeGeneratedToSatisfyWarmth &&
+                                         Settings.ApparelFilter.Allows(td));
     }
-
-    public static DressForTheWeatherSettings Settings => settings ??=
-        LoadedModManager.GetMod<DressForTheWeatherMod>().GetSettings<DressForTheWeatherSettings>();
 }

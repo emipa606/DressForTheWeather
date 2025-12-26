@@ -1,5 +1,8 @@
 # Changelog for DressForTheWeather
 
+1.6.2 - Added support for the PoisonForrest from [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3541022508]Advanced Biomes (Continued)[/url]
+
+
 1.6.1 - Added settings reset button
 Used DeepL to update translations for ChineseSimplified, French, German
 
