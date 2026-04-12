@@ -72,7 +72,7 @@ public static class PawnsArriveUtilities
              map.GameConditionManager.ConditionIsActive(GameConditionDefOf.ToxicFallout)) ||
             poisonForestDef != null && map.weatherManager.curWeather == poisonForestDef)
         {
-            Apparel gasMask;
+            Apparel gasMask = null;
             if (pawn.Faction?.def?.techLevel >= TechLevel.Industrial)
             {
                 //get gas mask
@@ -83,16 +83,23 @@ public static class PawnsArriveUtilities
             else
             {
                 gasMaskDef = DefDatabase<ThingDef>.GetNamed("Apparel_WarVeil");
-                var tsp = allApparelPairs!.Where(p => p.thing == gasMaskDef).RandomElementByWeight(p => p.Commonality);
-                gasMask = (Apparel)ThingMaker.MakeThing(tsp.thing, tsp.stuff);
+                var tsp = allApparelPairs!.Where(p => p.thing == gasMaskDef);
+                if (tsp.Any())
+                {
+                    var pair = tsp.RandomElementByWeight(p => p.Commonality);
+                    gasMask = (Apparel)ThingMaker.MakeThing(pair.thing, pair.stuff);
+                }
             }
 
-            //initialize apparel
-            gasMask.InitializeComps();
-            //add apparel to pawn
-            pawn.apparel.Wear(gasMask, false);
-            PawnGenerator.PostProcessGeneratedGear(gasMask, pawn);
-            isWearingGasMask = true;
+            if (gasMask != null)
+            {
+                //initialize apparel
+                gasMask.InitializeComps();
+                //add apparel to pawn
+                pawn.apparel.Wear(gasMask, false);
+                PawnGenerator.PostProcessGeneratedGear(gasMask, pawn);
+                isWearingGasMask = true;
+            }
         }
 
         var isWearingVacSuit = false;
