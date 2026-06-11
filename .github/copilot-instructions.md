@@ -1,42 +1,46 @@
-# Copilot Instructions for Dress for the Weather (Continued)
+# GitHub Copilot Instructions for Dress For The Weather Mod
 
 ## Mod Overview and Purpose
 
-Dress for the Weather (Continued) is a RimWorld mod designed to enhance the gameplay experience by ensuring that non-player characters (NPCs) such as trade caravans and guests arrive on the map dressed appropriately for the current environmental conditions. Originally created by Daniel, this continued version updates and refines its features.
+Dress for the Weather (Continued) is a mod designed to enhance the realism and immersion of RimWorld by ensuring that visiting trade caravans, guests, and optionally raiders dress appropriately for the current weather conditions. Originally made by Daniel and updated for continued compatibility, this mod aims to prevent issues such as hypothermia and frostbite in cold climates and overheating in hot ones, providing a more sensible behavior for AI characters upon entering your map.
 
 ## Key Features and Systems
 
-- **Weather-Appropriate Apparel:** NPCs will adapt their clothing to suit the current temperatures. In cold climates, parkas are favored, while in hot climates, dusters and cowboy hats are common.
-- **Hazard Protection:** In areas with toxic fallout or high pollution, NPCs from factions with industrial-level technology or higher will equip gas masks.
-- **Faction-Specific Apparel:** NPCs choose apparel based on their tech level, ensuring an immersive gameplay experience.
-- **Adjustable Settings:** Players have control over what kind of apparel guests are willing to wear, with options to disable armor and certain utilities.
-- **Compatibility:** This mod is designed to work seamlessly with Combat Extended (CE) and can be added or removed mid-save without issues.
+- **Weather-Appropriate Apparel:** Upon spawn, guests' and trade caravan members' apparel is adjusted based on the current outdoor temperature. Cold weather prompts parkas, while hot weather calls for dusters and cowboy hats.
+- **Pollution and Toxic Fallout Protection:** Pawns from industrial-tech level factions will wear gas masks on polluted or toxic maps.
+- **Faction-Specific Tech Level Apparel:** Guests and raiders (if enabled) will wear clothing that aligns with their tech level.
+- **Configurable Apparel Settings:** Players can adjust settings to toggle what apparel types are preferable for guests, such as disabling certain armors and utility items.
+- **Compatibility and Performance:** Compatible with Combat Extended, with a minimal performance impact confined to spawn times.
 
 ## Coding Patterns and Conventions
 
-- **Class Design:** Utilize static classes for utility methods that do not require instance fields, such as `IncidentWorker_NeutralGroup_SpawnPawns` and `PawnsArriveUtilities`.
-- **Mod Integration:** Utilize derived classes like `DressForTheWeatherMod` and `DressForTheWeatherSettings` to integrate settings into RimWorld’s mod framework.
-- **Performance Optimization:** Consider performance impacts during NPC spawn events and optimize code to minimize lag.
+- The project follows typical C# project organization with source files categorized by their functionality.
+- The naming conventions use PascalCase for classes and methods, ensuring readability and maintainability.
+- Consistent use of comments to describe class and method purposes helps with code navigation and understanding.
 
 ## XML Integration
 
-- **Defining Apparel:** Use XML files to define apparel items and their attributes so they can be dynamically applied based on environmental factors.
-- **Tech Level Restrictions:** Ensure apparel XML files respect faction tech level restrictions, potentially leveraging tags or labels.
+- XML files are present to handle mod metadata (`About.xml`) and settings configurations (`Manifest.xml`).
+- XML structure follows RimWorld's standard for defining mods and patches.
 
 ## Harmony Patching
 
-- **Core Function Overloads:** Utilize Harmony to apply patches on game methods that handle NPC spawning. This ensures that newly spawned characters check weather conditions for apparel adjustments without altering vanilla game code.
-- **Adding Patches:** Target methods related to guest and raider spawn such as `IncidentWorker_NeutralGroup_SpawnPawns` and add appropriate prefix/postfix methods.
+- The mod uses Harmony for patching to enhance and alter the default game behavior:
+  - **IncidentWorker_NeutralGroup_SpawnPawns.cs**: Contains patches for modifying pawn apparel on spawn.
+  - **IncidentWorker_Raid_TryGenerateRaidInfo.cs**: Handles settings for raider apparel replacement.
 
 ## Suggestions for Copilot
 
-- **Predictive Code Suggestions:** Implement code suggestions that respect existing conventions, such as using `foreach` loops for iterating over collections.
-- **Integration Assistance:** Propose suggested Harmony patches by identifying RimWorld methods likely to benefit from apparel checks.
-- **XML Suggestions:** Provide templates for new apparel def XML files, including necessary tags important for this mod’s features.
-- **Debugging and Testing:** Suggest tools and methods for testing new patches or configurations, such as using snippets that log NPC spawn events.
-- **Refactoring Suggestions:** Recommend organizational improvements to reduce complexity in files handling settings or multiple features.
+- **Context Awareness**: Use comments and existing method names in C# files to maintain the logic flow while generating code for apparel swapping and condition checks.
+- **XML Integration**: Suggest patterns for generating new XML settings or tweaks easily, using existing files as templates.
+- **Harmony Patches**: Ensure that Harmony patches are suggested in line with the existing postfix conventions, and maintain compatibility with other mods by non-invasive patching techniques.
+- **Performance Considerations**: Whenever writing new C# methods, prioritize suggestions that minimize performance impact, especially during the spawn of new pawns.
+- **Testing and Debugging**: Suggest integration points for logging and managing mod compatibility issues, which can assist in debugging when new Copilot-suggested features are tested.
 
-By following these instructions, developers and contributors can maintain and expand upon the Dress for the Weather mod in a consistent and efficient manner, ensuring that both the codebase and player experience remain well-optimized and enjoyable.
+This documentation provides essential insights into the "Dress for the Weather (Continued)" mod and guidelines to enhance development with the aid of GitHub Copilot.
+
+
+This .github/copilot-instructions.md file is a comprehensive guide designed to help developers working on the "Dress for the Weather (Continued)" mod. It encapsulates critical information about the mod, aiding both understanding and future development.
 
 ## Project Solution Guidelines
 - Relevant mod XML files are included as Solution Items under the solution folder named XML, these can be read and modified from within the solution.
@@ -45,3 +49,9 @@ By following these instructions, developers and contributors can maintain and ex
 - When making functional changes in this mod, ensure the documented features stay in sync with implementation; use the in-solution `.github` copy as the primary file.
 - In the solution is also a project called Assembly-CSharp, containing a read-only version of the decompiled game source, for reference and debugging purposes.
 - For any new documentation, update this copilot-instructions.md file rather than creating separate documentation files.
+
+
+## Hard rules (must follow)
+- Do NOT run commands that modify the repo (no git commit, git apply, dotnet format) unless explicitly asked.
+- Prefer minimal reads: read only the smallest code region needed (around the suspicious lines).
+

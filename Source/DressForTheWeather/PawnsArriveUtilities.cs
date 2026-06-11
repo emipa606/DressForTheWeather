@@ -67,10 +67,10 @@ public static class PawnsArriveUtilities
         var isWearingGasMask = false;
         ThingDef gasMaskDef = null;
         //if pawn is not wearing a gas mask and should have one and biotech or advanced biomes are enabled
-        if (ModLister.BiotechInstalled &&
-            (map.pollutionGrid.TotalPollutionPercent > 0.5 ||
-             map.GameConditionManager.ConditionIsActive(GameConditionDefOf.ToxicFallout)) ||
-            poisonForestDef != null && map.weatherManager.curWeather == poisonForestDef)
+        if (ModLister.BiotechInstalled && (map.pollutionGrid.TotalPollutionPercent > 0.5 ||
+                                           map.GameConditionManager.ConditionIsActive(GameConditionDefOf
+                                               .ToxicFallout) ||
+                                           poisonForestDef != null && map.weatherManager.curWeather == poisonForestDef))
         {
             Apparel gasMask = null;
             if (pawn.Faction?.def?.techLevel >= TechLevel.Industrial)
