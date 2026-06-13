@@ -76,13 +76,13 @@ public static class PawnsArriveUtilities
             if (pawn.Faction?.def?.techLevel >= TechLevel.Industrial)
             {
                 //get gas mask
-                gasMaskDef = ThingDefOf.Apparel_GasMask;
+                gasMaskDef = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_GasMask");
                 //create new gas mask
                 gasMask = (Apparel)ThingMaker.MakeThing(gasMaskDef);
             }
             else
             {
-                gasMaskDef = DefDatabase<ThingDef>.GetNamed("Apparel_WarVeil");
+                gasMaskDef = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_WarVeil");
                 var tsp = allApparelPairs!.Where(p => p.thing == gasMaskDef);
                 if (tsp.Any())
                 {

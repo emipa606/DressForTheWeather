@@ -1,4 +1,6 @@
-﻿using RimWorld;
+﻿using System.Collections.Generic;
+using System.Xml;
+using RimWorld;
 using Verse;
 
 namespace DressForTheWeather;
@@ -49,7 +51,11 @@ public class DressForTheWeatherSettings : ModSettings
             field.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_FlakPants"), true);
             field.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_FlakJacket"), true);
             //gas mask
-            field.SetAllow(DefDatabase<ThingDef>.GetNamed("Apparel_GasMask"), false);
+            if (ModLister.BiotechInstalled)
+            {
+                field.SetAllow(DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_GasMask"), false);
+            }
+
             return field;
         }
         set;
@@ -58,6 +64,13 @@ public class DressForTheWeatherSettings : ModSettings
     public override void ExposeData()
     {
         Scribe_Values.Look(ref RaidersComePrepared, nameof(RaidersComePrepared));
+
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
+            CleanFilterXmlOfUnknownDefs(nameof(ApparelFilter));
+            CleanFilterXmlOfUnknownDefs(nameof(ReplaceableFilter));
+        }
+
         var filter = ApparelFilter;
         Scribe_Deep.Look(ref filter, nameof(ApparelFilter));
         ApparelFilter = filter;
@@ -67,5 +80,23 @@ public class DressForTheWeatherSettings : ModSettings
         ReplaceableFilter = filter2;
 
         base.ExposeData();
+    }
+
+    private static void CleanFilterXmlOfUnknownDefs(string filterNodeName)
+    {
+        var allowedDefsNode = Scribe.loader?.curXmlParent?[filterNodeName]?["allowedDefs"];
+        if (allowedDefsNode == null)
+            return;
+
+        var toRemove = new List<XmlNode>();
+        foreach (XmlNode liNode in allowedDefsNode.ChildNodes)
+        {
+            var defName = liNode.InnerText?.Trim();
+            if (!string.IsNullOrEmpty(defName) && DefDatabase<ThingDef>.GetNamedSilentFail(defName) == null)
+                toRemove.Add(liNode);
+        }
+
+        foreach (var node in toRemove)
+            allowedDefsNode.RemoveChild(node);
     }
 }

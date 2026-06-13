@@ -1,5 +1,8 @@
 # Changelog for DressForTheWeather
 
+1.6.5 - Should finally have fixed the gasmask issue
+
+
 1.6.4 - Fixed logic regarding gasmask/warveil
 
 
