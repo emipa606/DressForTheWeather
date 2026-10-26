@@ -42,12 +42,9 @@ public static class PawnsArriveUtilities
                    pawn.Faction.def.CanUseStuffForApparel(pair.stuff);
         }
 
-        foreach (var apparelRequirement in apparelRequirements)
+        if (apparelRequirements.Any(requirement => !apparelRequirementCanUseStuff(requirement, pair)))
         {
-            if (!apparelRequirementCanUseStuff(apparelRequirement, pair))
-            {
-                return false;
-            }
+            return false;
         }
 
         return pair.stuff == null ||

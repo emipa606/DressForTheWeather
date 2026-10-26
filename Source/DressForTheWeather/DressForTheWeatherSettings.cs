@@ -8,8 +8,8 @@ namespace DressForTheWeather;
 [StaticConstructorOnStartup]
 public class DressForTheWeatherSettings : ModSettings
 {
-    private ThingFilter apparelFilter;
     public bool RaidersComePrepared;
+    private ThingFilter apparelFilter;
 
 
     public ThingFilter ApparelFilter
@@ -86,17 +86,23 @@ public class DressForTheWeatherSettings : ModSettings
     {
         var allowedDefsNode = Scribe.loader?.curXmlParent?[filterNodeName]?["allowedDefs"];
         if (allowedDefsNode == null)
+        {
             return;
+        }
 
         var toRemove = new List<XmlNode>();
         foreach (XmlNode liNode in allowedDefsNode.ChildNodes)
         {
-            var defName = liNode.InnerText?.Trim();
+            var defName = liNode.InnerText.Trim();
             if (!string.IsNullOrEmpty(defName) && DefDatabase<ThingDef>.GetNamedSilentFail(defName) == null)
+            {
                 toRemove.Add(liNode);
+            }
         }
 
         foreach (var node in toRemove)
+        {
             allowedDefsNode.RemoveChild(node);
+        }
     }
 }

@@ -129,7 +129,7 @@ public class DressForTheWeatherMod : Mod
         base.DoSettingsWindowContents(inRect);
     }
 
-    private void ResetSettings()
+    private static void ResetSettings()
     {
         Settings.ApparelFilter = null;
         _ = Settings.ApparelFilter;
